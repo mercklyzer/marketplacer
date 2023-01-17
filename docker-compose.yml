@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  marketplacer_server:
+    build: './marketplacer_server'
+    ports: 
+      - 3000:3000
+    environment:
+      - DB_HOST=marketplacer_db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=password
+      - DB_NAME=mydb
+    volumes:
+      - ./marketplacer_server:/app
+    command: "bash start.sh marketplacer_db:3306"
+
+  marketplacer_db:
+    image: 'mysql:5.7.32'
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=mydb
+    depends_on:
+      - marketplacer_server

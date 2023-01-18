@@ -4,7 +4,7 @@ var router = express.Router();
 /* GET users listing. */
 const productsRouter = (productsRepository) => {
     router.get('/', function(req, res, next) {
-      res.send('Products');
+      res.status(200).json({product: 'good'});
     });
 
     return router;

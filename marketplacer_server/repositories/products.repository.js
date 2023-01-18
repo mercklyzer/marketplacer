@@ -11,6 +11,17 @@ const productsRepository = (knex) => {
             }
         },
 
+        getProductByProductId: async (productId) => {
+            try{
+                const products = await knex.raw("CALL getProductByProductId(?);", [productId]);
+                return products[0][0][0];
+            }
+            catch(error){
+                console.error(error);
+                throw new Error(error);
+            }
+        },
+
         addProduct: async (productId, productName, productPrice) => {
             try{
                 const product = await knex.raw("CALL addProduct(?,?,?);", [productId, productName, productPrice]);

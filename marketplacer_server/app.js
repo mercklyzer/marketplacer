@@ -3,14 +3,20 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const {nanoid} = require('nanoid');
 const seedProductsFromJson = require('./utils/seedProductsFromJson');
+const factory = require('./utils/factory')();
+
 const knex = require('./config/knex');
+
 const productsRepository = require('./repositories/products.repository')(knex);
+const productsController = require('./controllers/products.controller')(productsRepository);
+
+factory.setProductsRepository(productsRepository);
+factory.setProductsController(productsController);
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var productsRouter = require('./routes/products')(productsRepository);
+var productsRouter = require('./routes/products');
 
 var app = express();
 
@@ -28,7 +34,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/products', productsRouter);
 
-seedProductsFromJson(productsRepository);
+(async () => await seedProductsFromJson(productsRepository))(); 
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

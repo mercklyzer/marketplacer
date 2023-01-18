@@ -2,7 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const {nanoid} = require('nanoid');
 
-const seedProductsFromJson = (productsRepository) => {
+const seedProductsFromJson = async (productsRepository) => {
+    const productsFromDatabase = await productsRepository.getProducts();
+    if(productsFromDatabase.length > 0){
+        return;
+    }
+
+
     const productsJsonPath = path.join(__dirname, '../data/products.json')
     fs.readFile(productsJsonPath, "utf-8", async (error, data) => {
         if(data){

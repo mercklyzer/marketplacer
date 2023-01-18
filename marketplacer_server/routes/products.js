@@ -1,14 +1,8 @@
 var express = require('express');
 var router = express.Router();
+const factory = require('../utils/factory')();
 
 /* GET users listing. */
-const productsRouter = (productsRepository) => {
-    router.get('/', function(req, res, next) {
-      res.status(200).json({product: 'good'});
-    });
+router.get('/', factory.productsController().getProducts);
 
-    return router;
-}
-
-
-module.exports = productsRouter;
+module.exports = router;

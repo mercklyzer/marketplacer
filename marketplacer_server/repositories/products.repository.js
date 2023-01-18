@@ -1,6 +1,6 @@
 const productsRepository = (knex) => {
     const repository = {
-        getProudcts: async () => {
+        getProducts: async () => {
             try{
                 const products = await knex.raw("CALL getProducts();");
                 return products[0][0];

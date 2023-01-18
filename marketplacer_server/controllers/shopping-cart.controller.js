@@ -1,5 +1,6 @@
 const {nanoid} = require('nanoid');
 const moment = require('moment');
+const getDiscountAndDiscountedTotal = require('../utils/getDiscountAndDiscountedTotal');
 
 const shoppingCartController = (shoppingCartRepository, productsRepository) => {
     const controller = {
@@ -17,7 +18,8 @@ const shoppingCartController = (shoppingCartRepository, productsRepository) => {
                         total += item.productPrice;
                     });
 
-                    res.status(200).json({data: {shoppingCart, total}});
+                    const [discount, discountedTotal] = getDiscountAndDiscountedTotal(total);
+                    res.status(200).json({data: {shoppingCart, total: discountedTotal, discount}});
                 }
             }
             catch(error){

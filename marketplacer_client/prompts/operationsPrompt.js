@@ -1,4 +1,5 @@
 const inquirer = require('inquirer');
+const getDiscountGreaterThanThreshold = require('../utils/getDiscountGreaterThanThreshold');
 const productsApi = require('../apiRequests/products.api')();
 const shoppingCartApi = require('../apiRequests/shopping-cart.api')();
 const store = require('../store')();
@@ -124,19 +125,9 @@ const shoppingCartPrompt = () => {
             })
 
             const discount = shoppingCart.discount;
-
             if (discount > 0) {
-                let greaterThanThreshold = 0;
-                if (discount === 0.2) {
-                    greaterThanThreshold = 100;
-                }
-                else if (discount === 0.15) {
-                    greaterThanThreshold = 50;
-                }
-                else if (discount === 0.1) {
-                    greaterThanThreshold = 20;
-                }
-                console.log(`Discount applied: ${shoppingCart.discount * 100}% off on total greater than $${greaterThanThreshold}.`);
+                const greaterThanThreshold = getDiscountGreaterThanThreshold(discount);
+                console.log(`Discount applied: ${discount * 100}% off on total greater than $${greaterThanThreshold}.`);
             }
 
             console.log(`Total: $${shoppingCart.total}`);
@@ -185,4 +176,3 @@ const shoppingCartPrompt = () => {
 }
 
 module.exports.actionsPrompt = actionsPrompt;
-module.exports.productsPrompt = productsPrompt;

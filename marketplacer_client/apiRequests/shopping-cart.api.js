@@ -14,6 +14,18 @@ const shoppingCartApi = () => {
             }
         },
 
+         addShoppingCartItem: async (username, productId) => {
+            try{
+                const response = await axios.post(`shopping-cart/${username}`, { data: { productId } });
+                const axiosData = response.data;
+                const shoppingCart = axiosData.data.shoppingCart;
+                return shoppingCart;
+            }
+            catch(error){
+                throw new Error(error.response.data.error);
+            }
+        },
+
         deleteShoppingCartItem: async (username, shoppingCartId) => {
             try{
                 const response = await axios.delete(`shopping-cart/${username}/${shoppingCartId}`);

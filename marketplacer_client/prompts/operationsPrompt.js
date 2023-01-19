@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const getDiscountGreaterThanThreshold = require('../utils/getDiscountGreaterThanThreshold');
+const isProductInShoppingCart = require('../utils/isProductInShoppingCart');
 const productsApi = require('../apiRequests/products.api')();
 const shoppingCartApi = require('../apiRequests/shopping-cart.api')();
 const store = require('../store')();
@@ -97,9 +98,16 @@ const productsPrompt = () => {
                             }
                             else {
                                 const productId = productIdOrCancel;
-                                console.log(productId);
+                                const username = store.username();
+                                const shoppingCart = store.shoppingCart();
+                                if(!isProductInShoppingCart(shoppingCart, productId)){
+                                    shoppingCartApi.addShoppingCartItem(username, productId);
+                                }
+                                else{
+                                    console.log("Item is already in your shopping cart.");
+                                }
+                                actionsPrompt().selectActionProductsListOrShoppingCartOrLogoutPrompt();
                             }
-
                         })
                     fulfill();
                 }

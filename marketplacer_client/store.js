@@ -1,6 +1,10 @@
 let _username = '';
 let _products = [];
-let _shoppingCart = {};
+let _shoppingCart = {
+    shoppingCartItems: [],
+    discount: 0,
+    total: 0
+};
 
 const store = () => {
     const _self = this;

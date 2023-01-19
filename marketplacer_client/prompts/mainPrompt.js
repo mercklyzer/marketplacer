@@ -1,4 +1,5 @@
 const inquirer = require('inquirer');
+const shoppingCartApi = require('../apiRequests/shopping-cart.api')();
 const store = require('../store')();
 const actionsPrompt = require('./operationsPrompt').actionsPrompt();
 
@@ -17,6 +18,9 @@ const mainPrompt = () => {
                 })
                     .then(async ({username}) => {
                         store.setUsername(username);
+                        const shoppingCart = await shoppingCartApi.getShoppingCart(username);
+                        store.setShoppingCart(shoppingCart);
+                        
                         await actionsPrompt.selectActionProductsListOrShoppingCartOrLogoutPrompt();
                         fulfill();
                     })

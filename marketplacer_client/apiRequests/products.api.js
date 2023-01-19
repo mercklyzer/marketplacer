@@ -4,10 +4,7 @@ const productsApi = () => {
     const api = {
         getProducts: async () => {
             try{
-                const response = await axios({
-                    url: "products",
-                    method: "get"
-                });
+                const response = await axios.get("products");
                 const products = response.data.data.products;
                 return products;
             }

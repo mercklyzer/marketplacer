@@ -10,9 +10,21 @@ const shoppingCartApi = () => {
                 return shoppingCart;
             }
             catch(error){
-                throw new Error(error);
+                throw new Error(error.response.data.error);
             }
-        }        
+        },
+
+        deleteShoppingCartItem: async (username, shoppingCartId) => {
+            try{
+                const response = await axios.delete(`shopping-cart/${username}/${shoppingCartId}`);
+                const axiosData = response.data;
+                const shoppingCart = axiosData.data.shoppingCart;
+                return shoppingCart;
+            }
+            catch(error){
+                throw new Error(error.response.data.error);
+            }
+        }
     }
 
     return api;

@@ -9,7 +9,7 @@ const productsApi = () => {
                 return products;
             }
             catch(error){
-                throw new Error(error);
+                throw new Error(error.response.data.error);
             }
         }
     }

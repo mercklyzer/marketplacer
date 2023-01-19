@@ -33,6 +33,7 @@ const actionsPrompt = () => {
                             store.setShoppingCart(shoppingCart);
 
                             shoppingCartPrompt().displayShoppingCart(username, shoppingCart);
+                            await prompt.selectActionShoppingCart();
                         }
                         else if (action === 'Log out') {
                             console.log("Log out");
@@ -41,8 +42,32 @@ const actionsPrompt = () => {
                     })
             })
         },
+
+        selectActionShoppingCart: () => {
+            return new Promise(fulfill => {
+                inquirer.prompt({
+                    type: 'list',
+                    name: 'action',
+                    message: 'What do you want to do?',
+                    choices: [
+                        'Remove item',
+                        'Go back',
+                    ]
+                })
+                    .then(async ({ action }) => {
+                        if (action === "Go back") {
+                            prompt.selectActionProductsListOrShoppingCartOrLogoutPrompt();
+                        }
+                        else if (action === "Remove item") {
+                            const username = store.username();
+                            const shoppingCart = store.shoppingCart();
+                            await shoppingCartPrompt().deleteShoppingCartItemPrompt(username, shoppingCart);
+                        }
+                        fulfill();
+                    })
+            })
+        }
     }
-    
     return prompt;
 }
 
@@ -115,6 +140,44 @@ const shoppingCartPrompt = () => {
             }
 
             console.log(`Total: $${shoppingCart.total}`);
+        },
+
+        deleteShoppingCartItemPrompt: (username, shoppingCart) => {
+            const shoppingCartItems = shoppingCart.shoppingCartItems.map((item, index) => ({
+                name: `${index + 1}.) ${item.productName} - $${item.productPrice}`,
+                value: item.shoppingCartItemId
+            }));
+
+            return new Promise((fulfill, reject) => {
+                inquirer.prompt({
+                    type: 'list',
+                    name: 'actionOrId',
+                    message: 'Select an item you want to remove.',
+                    choices: [...shoppingCartItems, "Cancel"]
+                })
+                    .then(async ({actionOrId}) => {
+                        try{
+                            if (actionOrId !== "Cancel") {
+                                const shoppingCartItemId = actionOrId;
+                                const username = store.username();
+                                const updatedShoppingCart = await shoppingCartApi.deleteShoppingCartItem(username, shoppingCartItemId);
+                                store.setShoppingCart(updatedShoppingCart);
+                                console.clear();
+                                shoppingCartPrompt().displayShoppingCart(username, updatedShoppingCart);
+                            }
+                            else{
+                                shoppingCartPrompt().displayShoppingCart(username, shoppingCart);
+                            }
+                            await actionsPrompt().selectActionShoppingCart();
+                            fulfill();
+                        }
+                        catch(error){
+                            console.error(error);
+                            reject(error);
+                        }
+                    })
+            })
+
         }
     }
 

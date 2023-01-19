@@ -10,7 +10,7 @@ const shoppingCartApi = () => {
                 return shoppingCart;
             }
             catch(error){
-                throw new Error(error.response.data.error);
+                throw new Error(error.response.data.error.message);
             }
         },
 
@@ -22,7 +22,7 @@ const shoppingCartApi = () => {
                 return shoppingCart;
             }
             catch(error){
-                throw new Error(error.response.data.error);
+                throw new Error(error.response.data.error.message);
             }
         },
 
@@ -34,7 +34,7 @@ const shoppingCartApi = () => {
                 return shoppingCart;
             }
             catch(error){
-                throw new Error(error.response.data.error);
+                throw new Error(error.response.data.error.message);
             }
         }
     }

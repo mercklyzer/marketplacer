@@ -101,7 +101,8 @@ const productsPrompt = () => {
                                 const username = store.username();
                                 const shoppingCart = store.shoppingCart();
                                 if(!isProductInShoppingCart(shoppingCart, productId)){
-                                    shoppingCartApi.addShoppingCartItem(username, productId);
+                                    const updatedShoppingCart = await shoppingCartApi.addShoppingCartItem(username, productId);
+                                    store.setShoppingCart(updatedShoppingCart);
                                 }
                                 else{
                                     console.log("Item is already in your shopping cart.");

@@ -1,14 +1,20 @@
 const {nanoid} = require('nanoid');
 const moment = require('moment');
 const getDiscountAndDiscountedTotal = require('../utils/getDiscountAndDiscountedTotal');
+const InvalidParameterError = require('../httpcodes/InvalidParameterError');
+const InvalidPayloadError = require('../httpcodes/InvalidPayloadError');
+const Ok = require('../httpcodes/Ok');
+const DoesNotExistError = require('../httpcodes/DoesNotExistError');
+const AlreadyExistsError = require('../httpcodes/AlreadyExistsError');
+const UnauthorizedError = require('../httpcodes/UnauthorizedError');
 
 const shoppingCartController = (shoppingCartRepository, productsRepository) => {
     const controller = {
         getShoppingCartByUsername: async (req, res, next) => {
             try{
-                const username = req.params.username
+                const username = req.params.username.toLowerCase();
                 if(!username){
-                    res.status(404).error({error: "Username not found."})
+                    return next(new InvalidParameterError(100));
                 }
 
                 else{
@@ -19,71 +25,99 @@ const shoppingCartController = (shoppingCartRepository, productsRepository) => {
                     });
 
                     const [discount, discountedTotal] = getDiscountAndDiscountedTotal(total);
-                    res.status(200).json({data: {shoppingCart, total: discountedTotal, discount}});
+                    return next(new Ok({shoppingCart: {shoppingCartItems: shoppingCart, total: discountedTotal, discount}}))
                 }
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                return next(error);
             }
         },
 
         addShoppingCartItem: async (req, res, next) => {
-            const username = req.params.username;
+            const username = req.params.username.toLowerCase();
             const productId = req.body.data.productId;
 
+            if(!username){
+                return next(new InvalidParameterError(100));
+            }
+
+            if(!productId){
+                return next(new InvalidPayloadError(200));
+            }
+
             try{
-                // get the product if it exists
                 const product = await productsRepository.getProductByProductId(productId);
 
                 if(!product){
-                    res.status(404).json({error: "Product doesn't exist."})
+                    return next(new DoesNotExistError(300));
                 }
 
-                // check if username + productId already exists (so just ignore since quantity is not yet a factor)
                 const shoppingCartItem = await shoppingCartRepository.getShoppingCartItemByUsernameAndProductId(username, productId);
                 if(shoppingCartItem){
-                    res.status(404).json({error: "Item is already in your shopping cart."})
+                    return next(new AlreadyExistsError(400));
                 }
                 else{
-                    // else add shopping cart item
                     const shoppingCartItemId = nanoid(12);
                     const {productName, productPrice} = product;
                     const createdAt = moment().unix();
     
                     await shoppingCartRepository.addShoppingCartItem(shoppingCartItemId, username, productId, productName, productPrice, createdAt);
-    
-                    res.status(200).json({data: {shoppingCartItemId, username, productId, productName, productPrice, createdAt}});
+
+                    const updatedShoppingCartItems = await shoppingCartRepository.getShoppingCartByUsername(username);
+                    let total = 0;
+                    updatedShoppingCartItems.forEach(item => {
+                        total += item.productPrice;
+                    });
+                    const [discount, discountedTotal] = getDiscountAndDiscountedTotal(total);
+
+                    return next(new Ok({shoppingCart: {shoppingCartItems: updatedShoppingCartItems, total: discountedTotal, discount}}))
                 }
 
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                return next(error);
             }
         },
 
         deleteShoppingCartItem: async (req, res, next) => {
             try {
-                const username = req.params.username;
+                const username = req.params.username.toLowerCase();
                 const shoppingCartItemId = req.params.shoppingCartItemId;
+
+                if(!username){
+                    return next(new InvalidParameterError(100));
+                }
+
+                if(!shoppingCartItemId){
+                    return next(new InvalidParameterError(101));
+                }
 
                 // check if username and shoppingCartItemId matches
                 const shoppingCartItem = await shoppingCartRepository.getShoppingCartItemByShoppingCartItemId(shoppingCartItemId);
                 if(!shoppingCartItem){
-                    res.status(404).json({error: "Item does not exist."});
+                    return next(new DoesNotExistError(301));
                 }
                 else if(shoppingCartItem.username !== username){
-                    res.status(404).json({error: "User has no authority to do this action."});
+                    return next(new UnauthorizedError(500));
                 }
                 else{
                     await shoppingCartRepository.deleteShoppingCartItem(shoppingCartItemId);
-                    res.status(200).json({data: shoppingCartItemId});
+
+                    const updatedShoppingCartItems = await shoppingCartRepository.getShoppingCartByUsername(username);
+                    let total = 0;
+                    updatedShoppingCartItems.forEach(item => {
+                        total += item.productPrice;
+                    });
+                    const [discount, discountedTotal] = getDiscountAndDiscountedTotal(total);
+                    
+                    return next(new Ok({shoppingCart: {shoppingCartItems: updatedShoppingCartItems, total: discountedTotal, discount}}))
                 }
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                return next(error);
             }
         }
     };

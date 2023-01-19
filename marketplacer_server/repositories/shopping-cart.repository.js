@@ -1,53 +1,56 @@
+const DBServerError = require("../httpcodes/DBServerError");
+
 const shoppingCartRepository = (knex) => {
     const repository = {
         getShoppingCartByUsername: async (username) => {
             try{
-                const shoppingCartItems = await knex.raw("CALL getShoppingCartByUsername(?);", [username]);
-                return shoppingCartItems[0][0];
+                const queryResponse = await knex.raw("CALL getShoppingCartByUsername(?);", [username]);
+                const shoppingCartItems = queryResponse[0][0];
+                return shoppingCartItems;
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                throw new DBServerError(1000, error.message);
             }
         },
 
         getShoppingCartItemByUsernameAndProductId: async (username, productId) => {
             try{
-                const shoppingCartItem = await knex.raw("CALL getShoppingCartItemByUsernameAndProductId(?,?);", [username, productId]);
-                return shoppingCartItem[0][0][0];
+                const queryResponse = await knex.raw("CALL getShoppingCartItemByUsernameAndProductId(?,?);", [username, productId]);
+                const shoppingCartItem = queryResponse[0][0][0];
+                return shoppingCartItem;
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                throw new DBServerError(1000, error.message);
             }
         },
 
         getShoppingCartItemByShoppingCartItemId: async (shoppingCartItemId) => {
             try{
-                const shoppingCartItem = await knex.raw("CALL getShoppingCartItemByShoppingCartItemId(?);", [shoppingCartItemId]);
-                return shoppingCartItem[0][0][0];
+                const queryResponse = await knex.raw("CALL getShoppingCartItemByShoppingCartItemId(?);", [shoppingCartItemId]);
+                const shoppingCartItem = queryResponse[0][0][0];
+                return shoppingCartItem;
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                throw new DBServerError(1000, error.message);
             }
         },
 
         addShoppingCartItem: async (shoppingCartItemId, username, productId, productName, productPrice, createdAt) => {
             try{
-                const shoppingCartItem = await knex.raw("CALL addShoppingCartItem(?,?,?,?,?,?);", [shoppingCartItemId, username, productId, productName, productPrice, createdAt]);
-                return shoppingCartItem[0][0];
+                await knex.raw("CALL addShoppingCartItem(?,?,?,?,?,?);", [shoppingCartItemId, username, productId, productName, productPrice, createdAt]);
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                throw new DBServerError(1000, error.message);
             }
         },
 
         deleteShoppingCartItem: async (shoppingCartItemId) => {
             try {
-                const deletedShoppingCartItem = await knex.raw("CALL deleteShoppingCartItem(?);", [shoppingCartItemId]);
-                return deletedShoppingCartItem[0][0];
+                await knex.raw("CALL deleteShoppingCartItem(?);", [shoppingCartItemId]);
             }
             catch(error){
                 console.error(error);

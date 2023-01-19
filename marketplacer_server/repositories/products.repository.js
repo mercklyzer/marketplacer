@@ -1,35 +1,39 @@
+const DBServerError = require("../httpcodes/DBServerError");
+
 const productsRepository = (knex) => {
     const repository = {
         getProducts: async () => {
             try{
-                const products = await knex.raw("CALL getProducts();");
-                return products[0][0];
+                const queryResponse = await knex.raw("CALL getProducts();");
+                const products = queryResponse[0][0];
+                return products;
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                throw new DBServerError(1000, error.message);
             }
         },
 
         getProductByProductId: async (productId) => {
             try{
-                const products = await knex.raw("CALL getProductByProductId(?);", [productId]);
-                return products[0][0][0];
+                const queryResponse = await knex.raw("CALL getProductByProductId(?);", [productId]);
+                const products = queryResponse[0][0];
+                const product = products[0];
+                return product;
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                throw new DBServerError(1000, error.message);
             }
         },
 
         addProduct: async (productId, productName, productPrice) => {
             try{
-                const product = await knex.raw("CALL addProduct(?,?,?);", [productId, productName, productPrice]);
-                return product[0][0];
+                await knex.raw("CALL addProduct(?,?,?);", [productId, productName, productPrice]);
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                throw new DBServerError(1000, error.message);
             }
         },
 
@@ -40,7 +44,7 @@ const productsRepository = (knex) => {
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                throw new DBServerError(1000, error.message);
             }
         }
     };

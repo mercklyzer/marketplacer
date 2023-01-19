@@ -1,15 +1,15 @@
+const Ok = require("../httpcodes/Ok");
+
 const productsController = (productsRepository) => {
     const controller = {
         getProducts: async (req, res, next) => {
             try {
-                const products = await productsRepository.getProudcts();
-                res.status(200).json({data: {
-                    products
-                }});
+                const products = await productsRepository.getProducts();
+                return next(new Ok({products}))
             }
             catch(error){
                 console.error(error);
-                throw new Error(error);
+                return next(error);
             }
         },
     };

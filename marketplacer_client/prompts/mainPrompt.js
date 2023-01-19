@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const store = require('../store')();
+const actionsPrompt = require('./operationsPrompt').actionsPrompt();
 
 const mainPrompt = () => {
     const prompt = {
@@ -16,6 +17,7 @@ const mainPrompt = () => {
                 })
                     .then(async ({username}) => {
                         store.setUsername(username);
+                        await actionsPrompt.selectActionProductsListOrShoppingCartOrLogoutPrompt();
                         fulfill();
                     })
             })
@@ -27,7 +29,6 @@ const mainPrompt = () => {
                 console.clear();
                 prompt.greetingsPrompt();
                 await prompt.usernamePrompt();
-                console.log(store.username());
                 fulfill();
             })
         }

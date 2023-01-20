@@ -29,14 +29,17 @@ const shoppingCartController = (shoppingCartRepository, productsRepository) => {
                 }
             }
             catch(error){
-                console.error(error);
                 return next(error);
             }
         },
 
         addShoppingCartItem: async (req, res, next) => {
             const username = req.params.username.toLowerCase();
-            const productId = req.body.data.productId;
+            const productId = req.body.data?.productId;
+
+            if(!req.body.data){
+                return next(new InvalidPayloadError(201));
+            }
 
             if(!username){
                 return next(new InvalidParameterError(100));
@@ -48,7 +51,6 @@ const shoppingCartController = (shoppingCartRepository, productsRepository) => {
 
             try{
                 const product = await productsRepository.getProductByProductId(productId);
-
                 if(!product){
                     return next(new DoesNotExistError(300));
                 }

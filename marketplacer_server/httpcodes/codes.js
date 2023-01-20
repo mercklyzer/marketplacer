@@ -8,6 +8,9 @@ const errorCodes = {
     200:{
         message: "Invalid product id."
     },
+    201: {
+        message: "Data field not found."
+    },
     300:{
         message: "Product does not exist."
     },

@@ -35,11 +35,13 @@ const shoppingCartController = (shoppingCartRepository, productsRepository) => {
 
         addShoppingCartItem: async (req, res, next) => {
             const username = req.params.username.toLowerCase();
-            const productId = req.body.data?.productId;
-
+            
             if(!req.body.data){
                 return next(new InvalidPayloadError(201));
             }
+
+            const productId = req.body.data.productId;
+
 
             if(!username){
                 return next(new InvalidParameterError(100));

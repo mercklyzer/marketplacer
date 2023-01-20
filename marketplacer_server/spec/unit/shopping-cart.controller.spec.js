@@ -3,6 +3,7 @@ const events = require('events');
 const httpcodes = require('../../httpcodes/codes');
 const shoppingCartController = require('../../controllers/shopping-cart.controller');
 const DBServerError = require('../../httpcodes/DBServerError');
+const Ok = require('../../httpcodes/Ok');
 
 
 const MOCK_PRODUCTS = [
@@ -36,7 +37,27 @@ const MOCK_PRODUCT_TO_BE_ADDED_TO_CART = {
     productPrice: 15.39
 };
 
-const MOCK_USERNAME = 'Lyzer';
+const MOCK_USERNAME = 'lyzer';
+
+const MOCK_SHOPPING_CART_ITEMS = [
+    {
+        shoppingCartItemId: "XUeduwYZB1ow",
+        username: MOCK_USERNAME,
+        productId: "b6LHI5V5xloo",
+        productName: "Chain Ring 146mm",
+        productPrice: 65.95,
+        createdAt: 1674138804
+    },
+    {
+        shoppingCartItemId: "XUeduwYZB1ow",
+        username: MOCK_USERNAME,
+        productId: "L9TY0Ae8sDrw",
+        productName: "Front Derailleur - 34.9mm",
+        productPrice: 31.22,
+        createdAt: 1674138775
+    }
+];
+
 
 describe('shopping-cart.controller.spec.js', () => {
     let mockProductsRepository;
@@ -45,7 +66,7 @@ describe('shopping-cart.controller.spec.js', () => {
     let response;
     let next;
 
-    
+
     beforeEach(() => {
         response = httpMocks.createResponse({
             eventEmitter: events.EventEmitter
@@ -58,17 +79,17 @@ describe('shopping-cart.controller.spec.js', () => {
             'addShoppingCartItem',
             'deleteShoppingCartItem'
         ]);
-        
+
         mockProductsRepository.getProductByProductId.and.returnValue(Promise.resolve(MOCK_PRODUCT_TO_BE_ADDED_TO_CART));
     });
 
     describe("Unhappy paths", () => {
         beforeEach(() => {
             next = (error) => {
-                response.status(error.statusCode || 500).json({error: {...error, message: error.message}});
+                response.status(error.statusCode || 500).json({ error: { ...error, message: error.message } });
             }
         })
-        
+
         describe("Get shopping cart by username", () => {
             it("Invalid username", (done) => {
                 request = httpMocks.createRequest({
@@ -96,9 +117,9 @@ describe('shopping-cart.controller.spec.js', () => {
 
             it("Database Error", (done) => {
                 mockShoppingCartRepository.getShoppingCartByUsername.and.returnValue(Promise.reject(new DBServerError(1000, '')));
-                
+
                 request = httpMocks.createRequest({
-                    params:{
+                    params: {
                         username: MOCK_USERNAME
                     }
                 });
@@ -267,6 +288,92 @@ describe('shopping-cart.controller.spec.js', () => {
                 controller.addShoppingCartItem(request, response, next);
             })
         })
+
+    })
+
+    describe("Happy paths", () => {
+        beforeEach(() => {
+            next = (data) => {
+                response.status(data.statusCode || 200).json({ data: data.body });
+            }
+        });
+
+        it("Get shopping cart by username", (done) => {              
+            mockShoppingCartRepository.getShoppingCartByUsername.and.returnValue(Promise.resolve(MOCK_SHOPPING_CART_ITEMS));
+
+            request = httpMocks.createRequest({
+                params: {
+                    username: MOCK_USERNAME
+                },
+            })
+
+            response.on('end', () => {
+                expect(200).toEqual(response.statusCode);
+                expect({
+                    data: {
+                        shoppingCart:{
+                            shoppingCartItems: [...MOCK_SHOPPING_CART_ITEMS],
+                            total: 82.59,
+                            discount: 0.15
+                        }
+                    }
+                }).toEqual(JSON.parse(response._getData()));
+                done();
+            })
+
+            const controller = shoppingCartController(mockShoppingCartRepository, mockProductsRepository);
+            controller.getShoppingCartByUsername(request, response, next);
+        });
+
+        it("Add shopping cart item", (done) => {
+            mockProductsRepository.getProductByProductId.and.returnValue(Promise.resolve(MOCK_PRODUCT_TO_BE_ADDED_TO_CART));
+            mockShoppingCartRepository.getShoppingCartItemByUsernameAndProductId.and.returnValue(Promise.resolve(false));
+            mockShoppingCartRepository.addShoppingCartItem.and.returnValue(Promise.resolve(true));
+            mockShoppingCartRepository.getShoppingCartByUsername.and.returnValue(Promise.resolve([
+                {
+                    shoppingCartItemId: "MockCartId12", 
+                    username: MOCK_USERNAME,
+                    ...MOCK_PRODUCT_TO_BE_ADDED_TO_CART,
+                    createdAt: 1674138999
+                },
+                ...MOCK_SHOPPING_CART_ITEMS
+            ]))
+
+            request = httpMocks.createRequest({
+                params: {
+                    username: MOCK_USERNAME
+                },
+                body: {
+                    data: {
+                        productId: MOCK_PRODUCT_TO_BE_ADDED_TO_CART.productId
+                    }
+                }
+            })
+
+            response.on('end', () => {
+                expect(200).toEqual(response.statusCode);
+                expect({
+                    data: {
+                        shoppingCart:{
+                            shoppingCartItems: [
+                                {
+                                    shoppingCartItemId: "MockCartId12", 
+                                    username: MOCK_USERNAME,
+                                    ...MOCK_PRODUCT_TO_BE_ADDED_TO_CART,
+                                    createdAt: 1674138999
+                                },
+                                ...MOCK_SHOPPING_CART_ITEMS
+                            ],
+                            total: 90.05,
+                            discount: 0.2
+                        }
+                    }
+                }).toEqual(JSON.parse(response._getData()));
+                done();
+            })
+            const controller = shoppingCartController(mockShoppingCartRepository, mockProductsRepository);
+            controller.addShoppingCartItem(request, response, next);
+        });
     })
 
 });

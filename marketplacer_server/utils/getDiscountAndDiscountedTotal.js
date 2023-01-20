@@ -12,7 +12,7 @@ const getDiscountAndDiscountedTotal = (total) => {
         discount = 0.1;
     }
     discountedTotal = total * (1 - discount);
-    discountedTotal = discountedTotal.toFixed(2);
+    discountedTotal = +discountedTotal.toFixed(2);
 
     return [discount, discountedTotal];
 }

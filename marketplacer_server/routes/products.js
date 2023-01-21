@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
-const factory = require('../utils/factory')();
+const singleton = require('../utils/singleton')();
 
 /* GET users listing. */
-router.get('/', factory.productsController().getProducts);
+router.get('/', singleton.productsController().getProducts);
 
 module.exports = router;

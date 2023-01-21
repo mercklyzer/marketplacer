@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const seedProductsFromJson = require('./utils/seedProductsFromJson');
-const factory = require('./utils/factory')();
+const singleton = require('./utils/singleton')();
 
 const knex = require('./config/knex');
 
@@ -13,10 +13,10 @@ const productsController = require('./controllers/products.controller')(products
 const shoppingCartRepository = require('./repositories/shopping-cart.repository')(knex);
 const shoppingCartController = require('./controllers/shopping-cart.controller')(shoppingCartRepository, productsRepository);
 
-factory.setProductsRepository(productsRepository);
-factory.setProductsController(productsController);
-factory.setShoppingCartRepository(shoppingCartRepository);
-factory.setShoppingCartController(shoppingCartController);
+singleton.setProductsRepository(productsRepository);
+singleton.setProductsController(productsController);
+singleton.setShoppingCartRepository(shoppingCartRepository);
+singleton.setShoppingCartController(shoppingCartController);
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');

@@ -3,7 +3,7 @@ let _productsRepository = null;
 let _shoppingCartController = null;
 let _shoppingCartRepository = null;
 
-const factory = () => {
+const singleton = () => {
     const _self = this;
 
     // PRODUCTS
@@ -30,4 +30,4 @@ const factory = () => {
     return _self;
 };
 
-module.exports = factory;
+module.exports = singleton;

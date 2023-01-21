@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
-const factory = require('../utils/factory')();
+const singleton = require('../utils/singleton')();
 
 /* GET users listing. */
-router.get('/:username', factory.shoppingCartController().getShoppingCartByUsername);
-router.post('/:username', factory.shoppingCartController().addShoppingCartItem);
-router.delete('/:username/:shoppingCartItemId', factory.shoppingCartController().deleteShoppingCartItem);
+router.get('/:username', singleton.shoppingCartController().getShoppingCartByUsername);
+router.post('/:username', singleton.shoppingCartController().addShoppingCartItem);
+router.delete('/:username/:shoppingCartItemId', singleton.shoppingCartController().deleteShoppingCartItem);
 
 module.exports = router;

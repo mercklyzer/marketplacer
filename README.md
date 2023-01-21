@@ -31,6 +31,7 @@ The project is running on the following environment:
 - WSL 2 (Ubuntu on Windows)
 - Docker version 20.10.17, build 100c701
 - Node v.16.9.1 (for Client CLI)
+- Make sure that ports 3000 and 3306 are available.
 
 Clone the repository.
 

@@ -1,6 +1,6 @@
 const errorCodes = {
     100: {
-        message: "Invalid username parameter."
+        message: "Invalid username parameter. Must not be empty and must not exceed 16 characters."
     },
     101: {
         message: "Invalid shopping cart item id parameter."

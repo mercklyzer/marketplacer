@@ -94,7 +94,7 @@ describe('shopping-cart.controller.spec.js', () => {
             it("Invalid username", (done) => {
                 request = httpMocks.createRequest({
                     params: {
-                        username: ''
+                        username: 'morethan16characters'
                     },
                 })
 
@@ -144,7 +144,7 @@ describe('shopping-cart.controller.spec.js', () => {
             it("Invalid username", (done) => {
                 request = httpMocks.createRequest({
                     params: {
-                        username: ''
+                        username: 'morethan16characters'
                     },
                     body: {
                         data: {

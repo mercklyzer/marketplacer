@@ -17,7 +17,8 @@ const mainPrompt = () => {
                     message: 'Enter your username:'
                 })
                     .then(async ({username}) => {
-                        if(username === ''){
+                        if(username === '' || username.length > 16){
+                            console.log("Username must not be empty and must not exceed 16 characters.");
                             prompt.usernamePrompt();
                         }
                         else{

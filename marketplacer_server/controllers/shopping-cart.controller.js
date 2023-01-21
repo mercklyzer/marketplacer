@@ -13,7 +13,7 @@ const shoppingCartController = (shoppingCartRepository, productsRepository) => {
         getShoppingCartByUsername: async (req, res, next) => {
             try{
                 const username = req.params.username.toLowerCase();
-                if(!username){
+                if(!username || username.length > 16){
                     return next(new InvalidParameterError(100));
                 }
 
@@ -43,7 +43,7 @@ const shoppingCartController = (shoppingCartRepository, productsRepository) => {
             const productId = req.body.data.productId;
 
 
-            if(!username){
+            if(!username || username.length > 16){
                 return next(new InvalidParameterError(100));
             }
 
@@ -90,7 +90,7 @@ const shoppingCartController = (shoppingCartRepository, productsRepository) => {
                 const username = req.params.username.toLowerCase();
                 const shoppingCartItemId = req.params.shoppingCartItemId;
 
-                if(!username){
+                if(!username || username.length > 16){
                     return next(new InvalidParameterError(100));
                 }
 

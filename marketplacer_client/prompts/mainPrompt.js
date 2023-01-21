@@ -17,12 +17,17 @@ const mainPrompt = () => {
                     message: 'Enter your username:'
                 })
                     .then(async ({username}) => {
-                        store.setUsername(username);
-                        const shoppingCart = await shoppingCartApi.getShoppingCart(username);
-                        store.setShoppingCart(shoppingCart);
-                        
-                        await actionsPrompt.selectActionProductsListOrShoppingCartOrLogoutPrompt();
-                        fulfill();
+                        if(username === ''){
+                            prompt.usernamePrompt();
+                        }
+                        else{
+                            store.setUsername(username);
+                            const shoppingCart = await shoppingCartApi.getShoppingCart(username);
+                            store.setShoppingCart(shoppingCart);
+                            
+                            await actionsPrompt.selectActionProductsListOrShoppingCartOrLogoutPrompt();
+                            fulfill();
+                        }
                     })
             })
 
